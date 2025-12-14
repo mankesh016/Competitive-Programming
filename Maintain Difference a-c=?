@@ -1,0 +1,117 @@
+// a-b= 5
+// b-c=3
+// a-c=?
+
+Input:
+5 6
+0 0 2 5
+0 1 2 3
+1 0 1
+1 1 3
+0 1 4 8
+1 0 4
+
+Output:
+2
+?
+10
+
+
+#include<bits/stdc++.h>
+using namespace std;
+
+#ifdef cp_first
+#include "algo/debug.h"
+#else
+#define debug(...)
+#endif
+
+#define int long long
+const int N = 2e5 + 5;
+
+class Dsu {
+	vector<int> par, sz, diff;
+	// diff[i] = val[i] - val[parent[i]]
+public:
+	Dsu(int n) {
+		sz.assign(n + 1, 1);
+		diff.assign(n + 1, 0);
+		par.resize(n + 1);
+		iota(par.begin(), par.end(), 0);
+	}
+
+	int find(int x) {
+		if (par[x] == x) return x;
+		int p = find(par[x]);
+		diff[x] += diff[par[x]];
+		return par[x] = p;
+	}
+
+	int getDiff(int x) {
+		find(x);
+		return diff[x];
+	}
+
+	bool unite(int x, int y, int z) {
+		// ax-ay = z
+		int orgx = x, orgy = y;
+		x = find(x); // relex
+		y = find(y); // relex
+		if (x == y) return false;
+
+		// diff[ org_x ] = val[ org_x ]-val[root_x]
+		// -> val[ org_x ] = diff[ org_x ] + val[root_x]
+		// diff[y] = val[y]-val[root_y]
+		// -> val[y] = diff[y] + val[root_y]
+		// val[ org_x ]- val[y] = z
+		// (diff[org_x]+val[root_x]) - (diff[y]+val[root_y]) = z
+		// val[root_x] = z - diff[ org_x ] + diff[y] + val[root_y]
+
+		if (sz[x] > sz[y]) swap(x, y), swap(orgx, orgy), z = -z;
+		// wants to make y as root
+		// val[root_y]=0
+
+		par[x] = y;
+		sz[y] += sz[x];
+		diff[x] = z - diff[orgx] + diff[orgy];
+
+		return true;
+	}
+};
+
+
+signed main() {
+	ios::sync_with_stdio(false); cin.tie(NULL);
+	// int TC; cin >> TC; while (TC--)
+	{
+		int n; cin >> n;
+		int q; cin >> q;
+
+		Dsu dsu(n);
+
+		while (q--) {
+			int type; cin >> type;
+			if (type == 0) {
+				int x, y, z; cin >> x >> y >> z;
+				// ay-zx=z
+
+				if (dsu.unite(y, x, z) == false) {
+					// already United Ignore! or report inconsistency!
+					if (dsu.getDiff(y) - dsu.getDiff(y) != z) {
+						// Inconsistant
+						// cout << -1 << "\n";
+					}
+				}
+			}
+			else {
+				int x, y; cin >> x >> y;
+				// ay-ax = ?
+				if (dsu.find(x) != dsu.find(y)) cout << "?" << "\n";
+				else cout << dsu.getDiff(y) - dsu.getDiff(x) << "\n";
+			}
+		}
+
+
+
+	}
+}
