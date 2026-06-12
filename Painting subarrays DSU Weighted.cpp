@@ -1,3 +1,4 @@
+/*
 We have a segment of length L, each element initially has the color 0. 
 We have to repaint the subarray [l, r]  with the color c for each query (l, r, c). 
 At the end we want to find the final color of each cell. 
@@ -14,6 +15,7 @@ Input:
 Output:
 4 5 5 5 3 2 0
 
+*/
 // Code!
 
 
